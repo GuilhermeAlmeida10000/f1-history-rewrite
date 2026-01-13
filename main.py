@@ -5,7 +5,7 @@ import sys
 # --- 1. SETTINGS & FLAGS ---
 CURRENT_POINTS = {1: 25, 2: 18, 3: 15, 4: 12, 5: 10, 6: 8, 7: 6, 8: 4, 9: 2, 10: 1}
 
-# Dicionário de Bandeiras (Completo)
+# Flags Mapping
 NAT_TO_FLAG = {
     'British': '🇬🇧', 'German': '🇩🇪', 'Brazilian': '🇧🇷', 'French': '🇫🇷', 
     'Finnish': '🇫🇮', 'Italian': '🇮🇹', 'Spanish': '🇪🇸', 'Austrian': '🇦🇹', 
@@ -40,12 +40,13 @@ def calculate_modern_points(position):
         return CURRENT_POINTS.get(int(position), 0)
     except:
         return 0
+    
 
-# Função de Padding Inteligente (Conta caracteres reais)
+# Smart Padding Function
 def smart_pad(text, width, align='left'):
     text = str(text)
-    # Emojis contam como 1 ou 2 caracteres dependendo do sistema, 
-    # mas visualmente ocupam 2. Isso tenta ajustar.
+    # Emojis count as 1 or 2 characters depending on the system,
+    # but visually occupy 2. This attempts to compensate.
     visible_len = len(text) 
     spaces = max(0, width - visible_len)
     
@@ -54,9 +55,9 @@ def smart_pad(text, width, align='left'):
     else:
         return (" " * spaces) + text
 
-# --- 2. CARREGANDO DADOS ---
+# --- 2. LOADING DATA ---
 script_dir = os.path.dirname(os.path.abspath(__file__))
-data_path = os.path.join(script_dir, "dados")
+data_path = os.path.join(script_dir, "data")
 output_dir = os.path.join(script_dir, "seasons_data")
 
 if not os.path.exists(output_dir):
@@ -65,7 +66,7 @@ if not os.path.exists(output_dir):
 print(f"📂 Loading data from: {data_path}")
 
 try:
-    # Leitura Blindada
+    # Careful reading with proper encoding and column names
     races = pd.read_csv(os.path.join(data_path, "races.csv"), encoding='utf-8-sig', 
                        header=0, names=['raceId', 'year', 'round', 'circuitId', 'name', 'date', 'time', 'url'], 
                        usecols=[0,1,2,3,4,5,6,7])
@@ -85,7 +86,7 @@ except Exception as e:
     print(f"❌ Fatal Error: {e}")
     sys.exit()
 
-# --- 3. PROCESSAMENTO ---
+# --- 3. PROCESSING ---
 years = sorted(races['year'].dropna().unique().astype(int))
 years_to_process = [y for y in years if y < 2010]
 
@@ -99,8 +100,8 @@ for year in years_to_process:
         continue
 
     results_year = results[results['raceId'].isin(race_ids)].copy()
-    
-    # Prepara Dados Auxiliares
+
+    # Preparing Auxiliary Data
     circuit_ids = races_year['circuitId'].unique()
     circuits_year = circuits[circuits['circuitId'].isin(circuit_ids)].copy()
     circuits_year['display'] = circuits_year.apply(lambda x: f"{get_flag(x['country'], True)} {x['name']} ({x['country']})", axis=1)
@@ -109,7 +110,7 @@ for year in years_to_process:
     constructors_year = constructors[constructors['constructorId'].isin(constructor_ids)].copy()
     constructors_year['display'] = constructors_year.apply(lambda x: f"{get_flag(x['nationality'])} {x['name']}", axis=1)
 
-    # Prepara Tabela Principal
+    # Preparing Main Table
     results_year['positionOrder'] = pd.to_numeric(results_year['positionOrder'], errors='coerce')
     results_year['modern_points'] = results_year['positionOrder'].apply(calculate_modern_points)
     
@@ -126,20 +127,18 @@ for year in years_to_process:
             formatted_teams.append(f"{get_flag(row['nationality_co'])} {row['name']}")
         return ", ".join(formatted_teams)
 
-    # Criando as colunas finais para exibição
-    standings['pos_display'] = "" # Será preenchido depois do sort
+    # Creating final display columns
+    standings['pos_display'] = "" # Will be filled after sorting
     standings['driver_display'] = standings.apply(lambda x: f"{get_flag(x['nationality_dr'])} {x['forename']} {x['surname']}", axis=1)
     standings['team_display'] = standings['driverId'].apply(get_driver_team)
     standings = standings.sort_values('modern_points', ascending=False).reset_index(drop=True)
     standings.index += 1
-    
-    # Preencher posição (1º, 2º...)
+
+    # Filling positions (1st, 2nd...)
     standings['pos_display'] = standings.index.astype(str) + "º"
     standings['pts_display'] = standings['modern_points'].astype(str)
 
-    # --- CÁLCULO DINÂMICO DE LARGURA ---
-    # Aqui está o segredo: medimos o tamanho máximo de cada coluna neste ano específico
-    # Adicionamos +2 ou +4 de margem para ficar bonito
+    # --- DYNAMIC WIDTH CALCULATION ---
     w_pos = max(standings['pos_display'].apply(len).max(), 3) + 2
     w_driver = max(standings['driver_display'].apply(len).max(), 6) + 3
     w_team = max(standings['team_display'].apply(len).max(), 4) + 3
