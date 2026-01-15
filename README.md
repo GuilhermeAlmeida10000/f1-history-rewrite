@@ -1,48 +1,43 @@
-# 🏎️ F1 History Rewrite Project
+# 🏎️ F1 History Explorer (Streamlit App)
 
-> **"What if Formula 1 had always used the modern scoring system?"**
+> **"What if Formula 1 had always used the modern 2024 scoring system?"**
 
 ## 📖 About the Project
-This project is a Data Science experiment that reprocesses historical Formula 1 data (1950-2009) applying the modern **2024 Scoring System** (25 points for a win).
+This is an interactive Data Science Web App developed with **Python** and **Streamlit**. 
+It reprocesses historical Formula 1 data (1950-2009) applying the **2024 Scoring System** (25 points for a win) to analyze how championship outcomes would change.
 
-The goal is to analyze how championship outcomes would change if today's rules were applied to the past, specifically targeting controversial seasons like **2008 (Hamilton vs. Massa)**.
+It features a specific focus on the controversial **2008 Season** (Hamilton vs. Massa), allowing users to visualize the race-by-race points evolution.
 
-## 🚀 Key Findings
-After processing 50+ seasons of data, the script generates detailed Markdown reports for each year.
-
-### The 2008 Verdict 🇧🇷 vs 🇬🇧
-In the real world, Lewis Hamilton won by 1 point.
-**With the Rewrite (Modern System):**
-* **Lewis Hamilton:** 243 pts
-* **Felipe Massa:** 240 pts
-
-**Conclusion:** Even with the modern system rewarding victories (25 pts) more heavily, Hamilton's consistency would still secure him the title by a slim 3-point margin.
+## 🚀 Features
+* **Interactive Dashboard:** Select any season between 1950 and 2009.
+* **Race-by-Race Evolution:** Dynamic line chart showing the championship battle.
+* **Rewritten Standings:** Detailed table with flags, teams, and recalculated points.
+* **Modern Rules:** Applies the current `25-18-15...` point distribution to historical races.
 
 ## 🛠️ Tech Stack
-* **Language:** Python 3
-* **Library:** Pandas (Data Cleaning, Manipulation, and Aggregation)
-* **Input:** CSV Data from Ergast Developer API
-* **Output:** Dynamic Markdown reports with aligned tables.
+* **Python 3.11+**
+* **Streamlit** (Frontend & Interactivity)
+* **Pandas** (Data Processing)
+* **Ergast Developer API** (Source Data - CSV)
 
-## ⚙️ How it Works (The Logic)
-1.  **Ingestion:** Reads raw CSV files (`races`, `results`, `drivers`, `constructors`).
-2.  **Cleaning:** Handles messy data, encoding issues (`utf-8-sig`), and inconsistent column spacing.
-3.  **Processing:** * Filters seasons chronologically.
-    * Discards the original points.
-    * Applies a mapping dictionary: `{1: 25, 2: 18, ... 10: 1}`.
-4.  **Reporting:** Generates a formatted `.md` file for each season in the `seasons_data/` folder, calculating the new champion dynamically.
+## 📦 How to Run Locally
 
-## 📦 How to Run
-1.  Clone this repository.
-2.  Install dependencies:
+1.  **Clone the repository:**
+    ```bash
+    git clone [https://github.com/GuilhermeAlmeida10000/f1-history-rewrite.git](https://github.com/GuilhermeAlmeida10000/f1-history-rewrite.git)
+    cd f1-history-rewrite
+    ```
+
+2.  **Install dependencies:**
     ```bash
     pip install -r requirements.txt
     ```
-3.  Run the script:
+
+3.  **Run the App:**
     ```bash
-    python main.py
+    python -m streamlit run app.py
     ```
-4.  Check the `seasons_data` folder for the results!
+    The app will open in your browser at `http://localhost:8501`.
 
 ---
 *Developed by Guilherme Almeida*
